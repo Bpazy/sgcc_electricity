@@ -6,7 +6,6 @@ import time
 import traceback
 from datetime import datetime
 
-import dotenv
 import schedule
 
 from const import *
@@ -15,9 +14,6 @@ from sensor_updator import SensorUpdator
 
 
 def main():
-    # 读取 .env 文件
-    dotenv.load_dotenv()
-
     try:
         PHONE_NUMBER = os.getenv("PHONE_NUMBER")
         PASSWORD = os.getenv("PASSWORD")

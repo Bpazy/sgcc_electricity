@@ -8,8 +8,7 @@
 <img src="assets/image-20230730135540291.png" alt="mini-graph-card" width="400">
 </p>
 
-
-
+**fored from https://github.com/renhai-lab/sgcc_electricity, 代码成熟后会提交 PR**
 
 本应用可以帮助你将国网的电费、用电量数据接入homeassistant，实现实时追踪家庭用电量情况；并且可以将每日用电量保存到数据库，历史有迹可循。具体提供两类数据：
 

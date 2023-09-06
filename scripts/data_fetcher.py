@@ -20,7 +20,6 @@ from const import *
 class DataFetcher:
 
     def __init__(self, username: str, password: str):
-        dotenv.load_dotenv()
         self._username = username
         self._password = password
         self._ocr = ddddocr.DdddOcr(show_ad=False)

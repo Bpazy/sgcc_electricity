@@ -6,7 +6,6 @@ import time
 import traceback
 
 import ddddocr
-import dotenv
 import pymongo
 import undetected_chromedriver as uc
 from selenium.webdriver.chrome.options import Options

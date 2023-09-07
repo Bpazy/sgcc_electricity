@@ -16,9 +16,9 @@
 
    | 实体entity_id                     | 说明                                                         |
    | --------------------------------- | ------------------------------------------------------------ |
-   | sensor.last_electricity_usage     | 最近一天用电量，单位KWH、度。属性含present_date（查询电量代表的日期） |
+   | sensor.last_electricity_usage     | 最近一天用电量，单位kWh、度。属性含present_date（查询电量代表的日期） |
    | sensor.electricity_charge_balance | 预付费显示电费余额，反之显示上月应交电费，单位元             |
-   | sensor.yearly_electricity_usage   | 今年总用电量，单位KWH、度。                                  |
+   | sensor.yearly_electricity_usage   | 今年总用电量，单位kWh、度。                                  |
    | sensor.yearly_electricity_charge  | 今年总用电费用，单位元                                       |
 
    

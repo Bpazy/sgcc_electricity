@@ -21,7 +21,7 @@ jobs:
       matrix:
         include:
           - file: Dockerfile
-          - file: Dockerfile-armv7
+#          - file: Dockerfile-armv7
     steps:
     - uses: actions/checkout@v3
 

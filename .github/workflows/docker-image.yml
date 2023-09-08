@@ -21,7 +21,9 @@ jobs:
       matrix:
         include:
           - file: Dockerfile
-#          - file: Dockerfile-armv7
+            platforms: linux/arm64,linux/amd64
+          - file: Dockerfile-armv7
+            platforms: linux/arm/v7
     steps:
     - uses: actions/checkout@v3
 
@@ -49,7 +51,7 @@ jobs:
       uses: docker/build-push-action@v4
       with:
         file: ${{ matrix.file }}
-        platforms: linux/arm64,linux/amd64
+        platforms: ${{ matrix.platforms }}
         context: .
         push: true
         tags: ${{ steps.meta.outputs.tags }}

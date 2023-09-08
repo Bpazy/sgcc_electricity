@@ -22,10 +22,9 @@ jobs:
         include:
           - file: Dockerfile
             platforms: linux/arm64,linux/amd64
-            tag-prefix:
           - file: Dockerfile-armv7
             platforms: linux/arm/v7
-            tag-prefix: armv7-
+            tag: armv7-
     steps:
     - uses: actions/checkout@v3
 
@@ -56,5 +55,5 @@ jobs:
         platforms: ${{ matrix.platforms }}
         context: .
         push: true
-        tags: ${{ matrix.platforms }}${{ steps.meta.outputs.tags }}
+        tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}

@@ -56,44 +56,45 @@
    cd sgcc_electricity 
    ```
 
-3. 创建环境变量文件
+3. 创建配置文件
 
    ```bash
-   vim .env
+   mkdir config && cd config
+   vim config.yaml
    ```
 
-   参考以下文件编写.env文件
+   参考以下文件编写 `config.yaml` 文件
 
    ```bash
    # 以下项都需要修改
    # 国网登录信息
-   PHONE_NUMBER="xxx" # 修改为自己的登录账号
-   PASSWORD="xxxx" # 修改为自己的登录密码
+   PHONE_NUMBER: "xxx" # 修改为自己的登录账号
+   PASSWORD: "xxxx" # 修改为自己的登录密码
    
    # 数据库配置
-   ENABLE_DATABASE_STORAGE=True # or False 不启用数据库储存每日用电量数据。
+   ENABLE_DATABASE_STORAGE: True # or False 不启用数据库储存每日用电量数据。
    # 数据库可以填已有的mongodb数据库
-   MONGO_URL="mongodb://USERNAME:PASSWORD@mongo-for-sgcc:27017/" # 数据库地址 修改USERNAME PASSWORD和mongo-for-sgcc和mongo容器名称一致 
-   DB_NAME="homeassistant" # 数据库名，默认为homeassistant
+   MONGO_URL: "mongodb://USERNAME:PASSWORD@mongo-for-sgcc:27017/" # 数据库地址 修改USERNAME PASSWORD和mongo-for-sgcc和mongo容器名称一致 
+   DB_NAME: "homeassistant" # 数据库名，默认为homeassistant
    # COLLECTION_NAME默认为electricity_daily_usage_{国网用户id}，不支持修改。
    
    # homeassistant配置
-   HASS_URL="http://localhost:8123/" # 改为你的localhost为你的homeassistant地址
+   HASS_URL: "http://localhost:8123/" # 改为你的localhost为你的homeassistant地址
    
-   HASS_TOKEN="eyxxxxx" # homeassistant的长期令牌
+   HASS_TOKEN: "eyxxxxx" # homeassistant的长期令牌
    
    # selenium运行参数
-   JOB_START_TIME="07:00" # 任务开始时间，24小时制，例如"07:00”则为每天早上7点执行，第一次启动程序如果时间晚于早上7点则会立即执行一次。
+   JOB_START_TIME: "07:00" # 任务开始时间，24小时制，例如"07:00”则为每天早上7点执行，第一次启动程序如果时间晚于早上7点则会立即执行一次。
    
    ## 其他默认参数
-   DRIVER_IMPLICITY_WAIT_TIME=60 # 浏览器默认等待时间，秒。
-   RETRY_TIMES_LIMIT=5 # 登录重试次数
-   LOGIN_EXPECTED_TIME=60 # 登录超时时间，秒
-   RETRY_WAIT_TIME_OFFSET_UNIT=10 
-   FIRST_SLEEP_TIME=10 # 第一次运行等待时间，秒
+   DRIVER_IMPLICITY_WAIT_TIME: 60 # 浏览器默认等待时间，秒。
+   RETRY_TIMES_LIMIT: 5 # 登录重试次数
+   LOGIN_EXPECTED_TIME: 60 # 登录超时时间，秒
+   RETRY_WAIT_TIME_OFFSET_UNIT: 10 
+   FIRST_SLEEP_TIME: 10 # 第一次运行等待时间，秒
    
    # 日志级别
-   LOG_LEVEL="INFO" # 例如“DUBUG”可以查看出错情况
+   LOG_LEVEL: "INFO" # 例如“DUBUG”可以查看出错情况
    ```
 
 4. 编写docker-compose.yml文件
@@ -109,14 +110,14 @@
    
    services:
      app:
-       env_file:
-         - .env
        depends_on:
          - mongo
        image: renhai/sgcc_electricity:latest # armv7 32架构的镜像为armv7-latest
        container_name: sgcc_electricity
        networks:
          sgcc_network:
+       volumes:
+         - ./config:/app/config
        environment:
          - SET_CONTAINER_TIMEZONE=true
          - CONTAINER_TIMEZONE=Asia/Shanghai
@@ -124,19 +125,19 @@
        command: python3 main.py
    
    # 默认将近30天数据写入mongo数据库，方便查询
-     mongo:
-       image: mongo:4.4.18
-       restart: always
-       container_name: mongo-for-sgcc
-       networks:
-         sgcc_network:
-       environment:
-         MONGO_INITDB_ROOT_USERNAME: USERNAME # 修改为自己的用户名
-         MONGO_INITDB_ROOT_PASSWORD: PASSWORD # 修改为自己的密码
-         MONGODB_DATABASE: "homeassistant" # 修改为自己的数据库名,和.env中的数据库名一致
-         CONTAINER_TIMEZONE: Asia/Shanghai
-       volumes:
-         - ./db:/data/db
+   #  mongo:
+   #    image: mongo:4.4.18
+   #    restart: always
+   #    container_name: mongo-for-sgcc
+   #    networks:
+   #      sgcc_network:
+   #    environment:
+   #      MONGO_INITDB_ROOT_USERNAME: USERNAME # 修改为自己的用户名
+   #      MONGO_INITDB_ROOT_PASSWORD: PASSWORD # 修改为自己的密码
+   #      MONGODB_DATABASE: "homeassistant" # 修改为自己的数据库名,和config.yaml中的数据库名一致
+   #      CONTAINER_TIMEZONE: Asia/Shanghai
+   #    volumes:
+   #      - ./db:/data/db
    
    networks:
       sgcc_network:
@@ -164,10 +165,11 @@
    cd sgcc_electricity
    ```
 
-2. 参考example.env编写.env文件
+2. 参考example.yaml编写config.yaml文件
 
    ```
-   cp example.env ./env
+   mkdir config
+   cp example.yaml config/config.yaml
    ```
 
 3. 查阅docker-compose文件，默认不需要修改
@@ -182,13 +184,13 @@
 
 ### 3）方法三，不安装docker，安装python环境后直接运行：
 
-克隆仓库之后,参考Dockerfile的命令，<u>自行配置安装chrome浏览器和selenium浏览器驱动</u>，安装mongodb，将example.env文件复制为.env文件到scripts文件夹下，然后运行main.py文件。
+克隆仓库之后,参考Dockerfile的命令，<u>自行配置安装chrome浏览器和selenium浏览器驱动</u>，安装mongodb，将example.yaml文件复制为config.yaml文件到scripts文件夹下，然后运行main.py文件。
 
 
 
 ## 四、配置与使用
 
-### 1）**第一次运行需要创建并填写.env文件，按文件说明进行填写。**
+### 1）**第一次运行需要创建并填写config.yaml文件，按文件说明进行填写。**
 
 ### 2）（可选）修改实体
 

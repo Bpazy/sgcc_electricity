@@ -1,5 +1,4 @@
 import logging
-import os
 import re
 import subprocess
 import time
@@ -13,6 +12,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
+from config import cfg
 from const import *
 
 
@@ -25,28 +25,28 @@ class DataFetcher:
         self._chromium_version = self._get_chromium_version()
 
         # 获取 ENABLE_DATABASE_STORAGE 的值，默认为 False
-        enable_database_storage = os.getenv("ENABLE_DATABASE_STORAGE", "false").lower() == "true"
+        enable_database_storage = cfg.get("ENABLE_DATABASE_STORAGE", False)
 
         if enable_database_storage:
             # 将数据存储到数据库
             logging.debug("enable_database_storage为true，将会储存到数据库")
             self.test_mongodb_connection()
-            self.db = self.client[os.getenv("DB_NAME")] # 创建数据库
+            self.db = self.client[cfg.get("DB_NAME")]  # 创建数据库
         else:
             # 将数据存储到其他介质，如文件或内存
             self.client = None
             self.db = None
             logging.info("enable_database_storage为false，不会储存到数据库")
 
-        self.DRIVER_IMPLICITY_WAIT_TIME = int(os.getenv("DRIVER_IMPLICITY_WAIT_TIME"))
-        self.RETRY_TIMES_LIMIT = int(os.getenv("RETRY_TIMES_LIMIT"))
-        self.LOGIN_EXPECTED_TIME = int(os.getenv("LOGIN_EXPECTED_TIME"))
-        self.RETRY_WAIT_TIME_OFFSET_UNIT = int(os.getenv("RETRY_WAIT_TIME_OFFSET_UNIT"))
+        self.DRIVER_IMPLICITY_WAIT_TIME = cfg["DRIVER_IMPLICITY_WAIT_TIME"]
+        self.RETRY_TIMES_LIMIT = cfg["RETRY_TIMES_LIMIT"]
+        self.LOGIN_EXPECTED_TIME = cfg["LOGIN_EXPECTED_TIME"]
+        self.RETRY_WAIT_TIME_OFFSET_UNIT = cfg["RETRY_WAIT_TIME_OFFSET_UNIT"]
 
     def test_mongodb_connection(self):
         """测试数据库连接情况"""
         try:
-            MONGO_URL = os.getenv("MONGO_URL")
+            MONGO_URL = cfg.get("MONGO_URL")
             # 创建 MongoDB 客户端
             self.client = pymongo.MongoClient(MONGO_URL)
 
@@ -353,7 +353,7 @@ class DataFetcher:
     def _click_button(driver, button_search_type, button_search_key):
         '''wrapped click function, click only when the element is clickable'''
         click_element = driver.find_element(button_search_type, button_search_key)
-        WebDriverWait(driver, int(os.getenv("DRIVER_IMPLICITY_WAIT_TIME"))).until(EC.element_to_be_clickable(click_element))
+        WebDriverWait(driver, cfg.get("DRIVER_IMPLICITY_WAIT_TIME")).until(EC.element_to_be_clickable(click_element))
         driver.execute_script("arguments[0].click();", click_element)
 
     @staticmethod

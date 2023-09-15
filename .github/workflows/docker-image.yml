@@ -21,11 +21,11 @@ jobs:
       matrix:
         include:
           - file: Dockerfile
-            platforms: linux/arm64,linux/amd64
-            tag-prefix:
+            platforms: linux/arm64
+          - file: Dockerfile
+            platforms: linux/amd64
           - file: Dockerfile-armv7
             platforms: linux/arm/v7
-            tag-prefix: armv7-
     steps:
     - uses: actions/checkout@v3
 
@@ -44,17 +44,16 @@ jobs:
 
     - name: Extract metadata (tags, labels) for Docker
       id: meta
-      uses: docker/metadata-action@v4
+      uses: docker/metadata-action@v5
       with:
         images: |
           ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
     - name: Build and push Docker images
-      uses: docker/build-push-action@v4
+      uses: docker/build-push-action@v5
       with:
         file: ${{ matrix.file }}
         platforms: ${{ matrix.platforms }}
         context: .
-        push: true
-        tags: ${{ matrix.tag-prefix }}${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
+        outputs: type=image,name=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }},push-by-digest=true,name-canonical=true,push=true

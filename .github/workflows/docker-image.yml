@@ -8,11 +8,23 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: ghcr.io/${{ github.repository }}
 
 jobs:
+  prepare_build:
+    name: Prepare build
+    runs-on: ubuntu-latest
+    outputs:
+      tag_name: ${{ steps.get_tag_name.outputs.tag_name }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Get tag name
+        id: get_tag_name
+        run: echo "tag_name=$(git tag --points-at | grep . || git branch --show-current)" >> $GITHUB_OUTPUT
+
   build-and-push-image:
     runs-on: ubuntu-latest
+    needs: prepare_build
     permissions:
       contents: read
       packages: write
@@ -22,10 +34,13 @@ jobs:
         include:
           - file: Dockerfile
             platforms: linux/arm64
+            tag-prefix: arm64-
           - file: Dockerfile
             platforms: linux/amd64
+            tag-prefix:
           - file: Dockerfile-armv7
             platforms: linux/arm/v7
+            tag-prefix: armv7-
     steps:
     - uses: actions/checkout@v3
 
@@ -51,7 +66,7 @@ jobs:
       uses: docker/metadata-action@v5
       with:
         images: |
-          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          ${{ env.IMAGE_NAME }}
 
     - name: Build and push Docker images
       uses: docker/build-push-action@v5
@@ -60,4 +75,7 @@ jobs:
         platforms: ${{ matrix.platforms }}
         context: .
         labels: ${{ steps.meta.outputs.labels }}
-        outputs: type=image,name=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }},push-by-digest=true,name-canonical=true,push=true
+        push: true
+        tags: |
+          ${{ env.IMAGE_NAME }}:latest
+          ${{ env.IMAGE_NAME }}:${{ matrix.tag-prefix }}${{ needs.prepare_build.outputs.tag_name }}
